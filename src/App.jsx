@@ -4,9 +4,10 @@ import "./App.css";
 
 function App() {
   const [codeText, setCodeText] = useState("");
+  const [fileName, setFileName] = useState("test_file");
 
   async function saveCodeText() {
-    setCodeText(await invoke("save_code_text", { codeText: codeText }));
+    setCodeText(await invoke("save_code_text", { codeText: codeText, fileName: fileName }));
   }
 
   return (

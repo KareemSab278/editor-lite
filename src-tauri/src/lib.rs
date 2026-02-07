@@ -2,27 +2,30 @@
 
 // https://www.youtube.com/watch?v=BGm0SCfY5Ak
 
+use std::fs::OpenOptions; // file access with read and write amd append
+use std::io::Write;
+use chrono::{ Local, DateTime };
+
 #[tauri::command]
-fn save_code_text(code_text: &str) -> String {
+fn save_code_text(code_text: &str, file_name: &str) -> String {
     // i need to save file when hittin ctrl + s and save new file when hitting ctrl + shift + s
-    format!("saved code {}...", code_text.chars().take(10).collect::<String>()) // In a real app, you would save the code text to a file or database here
     // reduce the code text to the first 10 characters for display purposes
 
     // i figured this part out before using my downloads_logger. it could write to file easily.
     // example code:
-    //     pub fn add_log(log: String) {
-    //     let file_name: String = "folder_logger.txt".to_string();
+    let file_name: String = file_name.to_string();
+    let output_text: String = code_text.to_string();
 
-    //     let output_text = format!("[{}] {}\n", get_current_date_time(), log); // looks like: [2026-01-25 19:34:15] text
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(file_name)
+        .expect("Could not open file");
 
-    //     let mut file = OpenOptions::new()
-    //         .create(true)
-    //         .append(true)
-    //         .open(file_name)
-    //         .expect("Could not open file");
+    file.write(output_text.as_bytes()).expect("Could not write to file brev");
 
-    //     file.write(output_text.as_bytes()).expect("Could not write to file brev");
-    // }
+    let output: String = format!("saved code {}...", code_text.chars().take(10).collect::<String>()); // In a real app, you would save the code text to a file or database here
+    return output;
 }
 
 // i need to show all files when hitting ctrl + F + E
