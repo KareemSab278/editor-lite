@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "editor-lite",
+  "productName": "ide-lite",
   "version": "0.1.0",
-  "identifier": "kareemsab278.editor-lite",
+  "identifier": "kareemsab278.ide-lite",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "editor-lite",
+        "title": "ide-lite",
         "width": 800,
         "height": 600
       }
@@ -31,5 +31,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "fs": {
+      "scope": ["$HOME/**"]
+    }
   }
 }

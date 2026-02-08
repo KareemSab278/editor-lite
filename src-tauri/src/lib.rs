@@ -22,10 +22,20 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
         .open(file_name)
         .expect("Could not open file");
 
-    file.write(output_text.as_bytes()).expect("Could not write to file brev");
+    file.write(output_text.as_bytes()).expect("Could not write to file.");
 
     let output: String = format!("saved code {}...", code_text.chars().take(10).collect::<String>()); // In a real app, you would save the code text to a file or database here
     return output;
+}
+
+#[tauri::command]
+fn get_file_content() -> String {
+    // read the content of the file and return it as a string
+    // open file selector and get the file path and then read the file and return the content to the frontend as txt plain
+    let file_path: String = "".to_string(); // this must be done after file selected and in rust side.
+    let file: String = file_path;
+    let content = std::fs::read_to_string(file).expect("Could not read file");
+    return content;
 }
 
 // i need to show all files when hitting ctrl + F + E
@@ -48,7 +58,7 @@ pub fn run() {
     tauri::Builder
         ::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![save_code_text])
+        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
