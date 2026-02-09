@@ -41,11 +41,18 @@ const App = () => {
     setCodeText(content);
   };
 
+  const lsFiles = async () => {
+    const files = await invoke("ls_files");
+    console.log(files);
+  };
+  
   return (
     <div style={styles.body}>
       <CodeEditorField fileName={file.current?.name} codeText={codeText} />
       <button onClick={saveCodeText}>Save</button>
       <button onClick={getFileContent}>Open File</button>
+      {/* for testing the ls_files command  */}
+      <button onClick={lsFiles}>List Files</button> 
     </div>
   );
 };

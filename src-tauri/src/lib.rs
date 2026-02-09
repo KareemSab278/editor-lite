@@ -4,7 +4,7 @@
 
 use std::fs::OpenOptions; // file access with read and write amd append
 use std::io::Write;
-use chrono::{ Local, DateTime };
+use walkdir::WalkDir; // for listing files in a directory
 
 #[tauri::command]
 fn save_code_text(code_text: &str, file_name: &str) -> String {
@@ -38,6 +38,22 @@ fn get_file_content() -> String {
     return content;
 }
 
+#[tauri::command]
+fn ls_files() -> Vec<String> {
+    // this should return a vec with all files. dunno how long it will take up in space/time but ill have to see lol. hoping for it to be instant but meh 
+    // i could get all the dirs instead of files then when i select a dir it lists the folders/files in that dir. might work..
+    // will need to do big brain gymnastics lol
+    let mut epstein_files: Vec<String> = Vec::new();
+    for result in WalkDir::new(std::env::current_dir().expect("Failed to get current dir")) {
+    if let Ok(entry) = result {
+        // could have filtered but that would take more time. 
+        epstein_files.push(entry.path().display().to_string());
+    }
+}
+    return epstein_files;
+}
+
+
 // i need to show all files when hitting ctrl + F + E
 // fn ls_files() // will show a file explorer to select which file to open and then read the file and return the content to the frontend as txt plain
 // then set state of code to the content of the file
@@ -58,7 +74,7 @@ pub fn run() {
     tauri::Builder
         ::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content])
+        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, ls_files])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
