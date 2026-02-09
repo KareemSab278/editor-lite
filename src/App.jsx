@@ -6,6 +6,9 @@ export { App };
 
 const App = () => {
   const [codeText, setCodeText] = useState("");
+  const [selectedPath, setSelectedPath] = useState("C:/Users/coinadrink");
+  // everytime i select a path then it shoul update the selected path and then call lsDir again to show the new path.
+  // basically representing a full file system. I think i can also code a back button to go back by slicing until the last / and calling lsDir again.
   const file = useRef(null);
 
   const saveCodeText = async () => {
@@ -41,18 +44,18 @@ const App = () => {
     setCodeText(content);
   };
 
-  const lsFiles = async () => {
-    const files = await invoke("ls_files");
-    console.log(files);
+  const lsDir = async () => {
+    const files = await invoke("list_dir", { path: selectedPath });
+    console.log(files); // i should be showing all the files in a visual gui in a modal but im tired and have work tomorrow lol. bye
   };
-  
+
   return (
     <div style={styles.body}>
       <CodeEditorField fileName={file.current?.name} codeText={codeText} />
       <button onClick={saveCodeText}>Save</button>
       <button onClick={getFileContent}>Open File</button>
       {/* for testing the ls_files command  */}
-      <button onClick={lsFiles}>List Files</button> 
+      <button onClick={lsDir}>List Dir</button>
     </div>
   );
 };

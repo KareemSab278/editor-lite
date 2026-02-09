@@ -4,7 +4,8 @@
 
 use std::fs::OpenOptions; // file access with read and write amd append
 use std::io::Write;
-use walkdir::WalkDir; // for listing files in a directory
+use std::fs;
+use serde::Serialize;
 
 #[tauri::command]
 fn save_code_text(code_text: &str, file_name: &str) -> String {
@@ -18,7 +19,8 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
 
     let mut file = OpenOptions::new()
         .create(true)
-        .append(true)
+        .write(true) // overwrite existing content
+        .truncate(true)
         .open(file_name)
         .expect("Could not open file");
 
@@ -38,19 +40,32 @@ fn get_file_content() -> String {
     return content;
 }
 
-#[tauri::command]
-fn ls_files() -> Vec<String> {
-    // this should return a vec with all files. dunno how long it will take up in space/time but ill have to see lol. hoping for it to be instant but meh 
-    // i could get all the dirs instead of files then when i select a dir it lists the folders/files in that dir. might work..
-    // will need to do big brain gymnastics lol
-    let mut epstein_files: Vec<String> = Vec::new();
-    for result in WalkDir::new(std::env::current_dir().expect("Failed to get current dir")) {
-    if let Ok(entry) = result {
-        // could have filtered but that would take more time. 
-        epstein_files.push(entry.path().display().to_string());
-    }
+#[derive(Serialize)]
+struct DirEntry {
+    name: String,
+    path: String,
+    is_dir: bool,
 }
-    return epstein_files;
+
+#[tauri::command]
+fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
+    let entries = fs::read_dir(&path).map_err(|e| e.to_string())?;
+
+    let mut result = Vec::new();
+
+    for entry in entries {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        let metadata = entry.metadata().map_err(|e| e.to_string())?;
+
+        result.push(DirEntry {
+            name: entry.file_name().to_string_lossy().to_string(),
+            path: path.to_string_lossy().to_string(),
+            is_dir: metadata.is_dir(),
+        });
+    }
+
+    Ok(result)
 }
 
 
@@ -74,7 +89,7 @@ pub fn run() {
     tauri::Builder
         ::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, ls_files])
+        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, list_dir])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
