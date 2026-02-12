@@ -31,10 +31,9 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
 }
 
 #[tauri::command]
-fn get_file_content() -> String {
+fn get_file_content(file_path: String) -> String {
     // read the content of the file and return it as a string
     // open file selector and get the file path and then read the file and return the content to the frontend as txt plain
-    let file_path: String = "".to_string(); // this must be done after file selected and in rust side.
     let file: String = file_path;
     let content = std::fs::read_to_string(file).expect("Could not read file");
     return content;
@@ -69,7 +68,7 @@ fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
 }
 
 
-// i need to show all files when hitting ctrl + F + E
+// i need to show all files when hitting ctrl + E
 // fn ls_files() // will show a file explorer to select which file to open and then read the file and return the content to the frontend as txt plain
 // then set state of code to the content of the file
 

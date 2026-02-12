@@ -12,6 +12,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mantine/core": "^8.3.14",
+    "@mantine/hooks": "^8.3.14",
     "@mui/material": "^7.3.7",
     "@mui/styled-engine": "^7.3.7",
     "@tauri-apps/api": "^2",

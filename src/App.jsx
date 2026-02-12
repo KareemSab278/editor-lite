@@ -1,14 +1,16 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { CodeEditorField } from "./components/codeEditorField";
+import { PrimaryModal } from "./components/fileSelectorModal";
+import { PrimaryButton } from "./components/buttons";
 
 export { App };
 
 const App = () => {
   const [codeText, setCodeText] = useState("");
   const [selectedPath, setSelectedPath] = useState("C:/Users/coinadrink");
-  // everytime i select a path then it shoul update the selected path and then call lsDir again to show the new path.
-  // basically representing a full file system. I think i can also code a back button to go back by slicing until the last / and calling lsDir again.
+  const [dirFiles, setDirFiles] = useState([]);
+  const [fileExplorerModalOpen, setFileExplorerModalOpen] = useState(true);
   const file = useRef(null);
 
   const saveCodeText = async () => {
@@ -17,45 +19,77 @@ const App = () => {
       return;
     }
 
-    if (!codeText) {
-      alert(
-        "Imagine saving an empty file. Please enter some code before saving. Even space counts!",
-      );
-      return;
-    }
-
-    setCodeText(
-      await invoke("save_code_text", {
-        codeText: codeText,
-        fileName: file.current?.name,
-      }),
-    );
+    return codeText.trim().length > 0
+      ? setCodeText(
+          await invoke("save_code_text", {
+            codeText: codeText,
+            fileName: file.current?.name,
+          }),
+        )
+      : alert(
+          "Imagine saving an empty file. Please enter some code before saving!",
+        );
   };
 
   const getFileContent = async () => {
-    // this rust fn will handle the file reading and return the content to the frontend. youll also select the file with it
-    const content = await invoke("get_file_content");
-    if (!content) {
-      alert(
-        "Could not read file content. Please make sure the file is not empty and try again.",
-      );
-      return;
-    }
-    setCodeText(content);
+    const content = await invoke("get_file_content", {
+      file_path: file.current?.name,
+    });
+    return content
+      ? setCodeText(content)
+      : alert("File is empty. Please select a file with content."); // will need alert component ltr
   };
 
   const lsDir = async () => {
     const files = await invoke("list_dir", { path: selectedPath });
-    console.log(files); // i should be showing all the files in a visual gui in a modal but im tired and have work tomorrow lol. bye
+    console.log(files);
+    setDirFiles(files);
   };
+
+  const fileExplorerModal = (
+    <PrimaryModal
+      opened={fileExplorerModalOpen}
+      closed={() => setFileExplorerModalOpen(false)}
+      title="Select a file"
+      children={
+        <ul>
+          {dirFiles.map((fileObj, index) => (
+            <li
+              key={index}
+              onClick={() => {
+                if (fileObj.is_dir) {
+                  setSelectedPath(fileObj.path);
+                  lsDir();
+                } else {
+                  file.current = { name: fileObj.path };
+                  getFileContent();
+                }
+                setFileExplorerModalOpen(false);
+              }}
+            >
+              {fileObj.name}
+            </li>
+          ))}
+        </ul>
+      }
+    />
+  );
 
   return (
     <div style={styles.body}>
       <CodeEditorField fileName={file.current?.name} codeText={codeText} />
-      <button onClick={saveCodeText}>Save</button>
-      <button onClick={getFileContent}>Open File</button>
-      {/* for testing the ls_files command  */}
-      <button onClick={lsDir}>List Dir</button>
+
+      {fileExplorerModal}
+
+      <PrimaryButton title="save" onClick={async () => await saveCodeText()} />
+
+      <PrimaryButton
+        title="see files"
+        onClick={async () => {
+          setFileExplorerModalOpen(true);
+          await lsDir();
+        }}
+      />
     </div>
   );
 };
