@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, use } from "react";
+import { useRef, useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
@@ -34,16 +34,16 @@ const App = () => {
         );
   };
 
-  const keysHmap = {
+  const keysHmapRef = useRef({
     "Control+e": () => setFileExplorerModalOpen(true),
     "Control+s": async () => await saveCodeText(),
     "Control+q": () => invoke("kill_app"),
-  };
+  });
 
   useEffect(() => {
     const handleKeyPressEvent = (event) => {
       const keyString = `${event.ctrlKey ? "Control+" : ""}${event.key}`;
-      const isShortcut = handleKeyPress(keyString, keysHmap);
+      const isShortcut = handleKeyPress(keyString, keysHmapRef.current);
       if (isShortcut) {
         event.preventDefault();
       }
@@ -53,7 +53,7 @@ const App = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyPressEvent);
     };
-  }, [keysHmap]);
+  }, [saveCodeText]);
 
   useEffect(() => {
     selectedPath &&
@@ -66,7 +66,7 @@ const App = () => {
     });
     return content
       ? setCodeText(content)
-      : alert("File is empty. Please select a file with content."); // will need alert component ltr
+      : alert("File is empty. Please select a file with content.");
   };
 
   const lsDir = async () => {
