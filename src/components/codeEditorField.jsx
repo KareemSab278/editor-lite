@@ -6,14 +6,13 @@ import "prismjs/components/prism-javascript";
 
 export { CodeEditorField };
 
-const CodeEditorField = ({ fileName, codeText }) => {
-  const [code, setCode] = useState(codeText);
+const CodeEditorField = ({ fileName, codeText, setCodeText }) => {
   return (
     <section style={styles.body}>
       <div style={styles.header}>{fileName}</div>
       <Editor
-        value={code}
-        onValueChange={setCode}
+        value={codeText}
+        onValueChange={setCodeText}
         highlight={(code) =>
           Prism.highlight(code, Prism.languages.javascript, "javascript")
         }

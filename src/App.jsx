@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, use } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
@@ -9,37 +9,11 @@ export { App };
 
 const App = () => {
   const [codeText, setCodeText] = useState("");
-  const [selectedPath, setSelectedPath] = useState("C:/Users");
+  const [selectedPath, setSelectedPath] = useState(
+    "C:/Users\\coinadrink\\Desktop\\projects",
+  );
   const [dirFiles, setDirFiles] = useState([]);
   const [fileExplorerModalOpen, setFileExplorerModalOpen] = useState(false);
-  const [keyPress, setKeyPress] = useState(null);
-
-  const keysHmap = {
-    "Control+e": () => setFileExplorerModalOpen(true),
-    "Control+s": async () => await saveCodeText(),
-    "Control+q": () => invoke("kill_app"),
-  };
-
-  useEffect(() => {
-    const handleKeyPressEvent = (event) => {
-      const keyString = `${event.ctrlKey ? "Control+" : ""}${event.key}`;
-      const action = handleKeyPress(keyString, keysHmap);
-      if (action) {
-        setKeyPress(action);
-        event.preventDefault();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPressEvent);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPressEvent);
-    };
-  }, []);
-
-  useEffect(() => {
-    selectedPath && invoke("list_dir", { path: selectedPath }).then(setDirFiles);
-  }, [selectedPath]);
-
   const file = useRef(null);
 
   const saveCodeText = async () => {
@@ -60,9 +34,35 @@ const App = () => {
         );
   };
 
+  const keysHmap = {
+    "Control+e": () => setFileExplorerModalOpen(true),
+    "Control+s": async () => await saveCodeText(),
+    "Control+q": () => invoke("kill_app"),
+  };
+
+  useEffect(() => {
+    const handleKeyPressEvent = (event) => {
+      const keyString = `${event.ctrlKey ? "Control+" : ""}${event.key}`;
+      const isShortcut = handleKeyPress(keyString, keysHmap);
+      if (isShortcut) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPressEvent);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPressEvent);
+    };
+  }, [keysHmap]);
+
+  useEffect(() => {
+    selectedPath &&
+      invoke("list_dir", { path: selectedPath }).then(setDirFiles);
+  }, [selectedPath]);
+
   const getFileContent = async () => {
     const content = await invoke("get_file_content", {
-      file_path: file.current?.name,
+      filePath: file.current?.name,
     });
     return content
       ? setCodeText(content)
@@ -72,11 +72,16 @@ const App = () => {
   const lsDir = async () => {
     const files = await invoke("list_dir", { path: selectedPath });
     setDirFiles(files);
+    console.log("Directory files:", files);
   };
 
   return (
     <div style={styles.body}>
-      <CodeEditorField fileName={file.current?.name} codeText={codeText} />
+      <CodeEditorField
+        fileName={file.current?.name}
+        codeText={codeText}
+        setCodeText={setCodeText}
+      />
 
       <PrimaryButton title="save" onClick={async () => await saveCodeText()} />
 
@@ -87,6 +92,7 @@ const App = () => {
           setFileExplorerModalOpen(true);
         }}
       />
+
       <PrimaryModal
         opened={fileExplorerModalOpen}
         closed={() => setFileExplorerModalOpen(false)}
@@ -111,6 +117,7 @@ const App = () => {
                     } else {
                       file.current = { name: fileObj.path };
                       getFileContent();
+                      setFileExplorerModalOpen(false);
                     }
                   }}
                   style={{
