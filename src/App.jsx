@@ -10,7 +10,7 @@ export { App };
 const App = () => {
   const [codeText, setCodeText] = useState("");
   const [selectedPath, setSelectedPath] = useState(
-    "C:/Users\\coinadrink\\Desktop\\projects",
+    "/home/kareem/Desktop",
   );
   const [dirFiles, setDirFiles] = useState([]);
   const [fileExplorerModalOpen, setFileExplorerModalOpen] = useState(false);
@@ -40,6 +40,7 @@ const App = () => {
   const keysHmapRef = useRef({
     "Control+e": () => setFileExplorerModalOpen(true),
     "Control+q": () => invoke("kill_app"),
+    // i wanna add a backspace to the file explorer but it interferes with the code editor so maybe later...
     // "Control+s": async () => await saveCodeText(), // this is unpredictable so will be removed for now. it doesnt save anything and sets the file to ""... weird...
     Escape: () => {
       setFileExplorerModalOpen(false);
@@ -112,7 +113,7 @@ const App = () => {
             <PrimaryButton
               title="Back"
               onClick={() => {
-                setSelectedPath(trackBackPath(selectedPath));
+                setSelectedPath(trackBackPath(selectedPath, "linux"));
                 lsDir();
               }}
             />

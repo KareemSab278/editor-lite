@@ -1,6 +1,11 @@
 export {trackBackPath, handleKeyPress};
 
-const trackBackPath = (currentPath) =>{
+const trackBackPath = (currentPath, os) =>{
+    if (os === "linux") {
+        const lastSlashIndex = currentPath.lastIndexOf('/');
+        if (lastSlashIndex === -1) return currentPath;
+        return currentPath.slice(0, lastSlashIndex);
+    }
     const lastBackslashIndex = currentPath.lastIndexOf('\\');
     if (lastBackslashIndex === -1) return currentPath;
     return currentPath.slice(0, lastBackslashIndex);
