@@ -39,6 +39,11 @@ fn get_file_content(file_path: String) -> String {
     return content;
 }
 
+#[tauri::command]
+fn get_os() -> String {
+    std::env::consts::OS.to_string()
+}
+
 #[derive(Serialize)]
 struct DirEntry {
     name: String,
@@ -86,14 +91,14 @@ fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
 
 // ctrl + w to close tabs with save modal prompt. (unless 0 tabs then just close tab without save modal prompt and dont save )
 // ctrl + q to terminate program with save modal prompt.
-// ctrl + q + ! to close tab without save modal prompt and dont save.
+// ctrl + q + ! to close tab without save modal prompt and dont save. 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder
         ::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, list_dir, kill_app])
+        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, list_dir, kill_app, get_os])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

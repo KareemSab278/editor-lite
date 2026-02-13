@@ -1,15 +1,4 @@
-export {trackBackPath, handleKeyPress};
-
-const trackBackPath = (currentPath, os) =>{
-    if (os === "linux") {
-        const lastSlashIndex = currentPath.lastIndexOf('/');
-        if (lastSlashIndex === -1) return currentPath;
-        return currentPath.slice(0, lastSlashIndex);
-    }
-    const lastBackslashIndex = currentPath.lastIndexOf('\\');
-    if (lastBackslashIndex === -1) return currentPath;
-    return currentPath.slice(0, lastBackslashIndex);
-}
+export {handleKeyPress, Path};
 
 const handleKeyPress = (eventKeystring, keysHmap) => {
     const action = keysHmap[eventKeystring];
@@ -18,4 +7,26 @@ const handleKeyPress = (eventKeystring, keysHmap) => {
         return true;
     }
     return false;
+}
+
+class Path { // implemented a stack data structure to keep track of the path history for the file explorer modal.
+  #items;
+  constructor() {
+    this.#items = [];
+  }
+  push(element) {
+    this.#items.push(element);
+  }
+  pop() {
+    return this.#items.pop() || null;
+  }
+  peek() {
+    return this.#items[this.#items.length - 1] || null;
+  }
+  isEmpty() {
+    return this.#items.length === 0;
+  }
+  size() {
+    return this.#items.length;
+  }
 }

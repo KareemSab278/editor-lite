@@ -3,19 +3,31 @@ import { invoke } from "@tauri-apps/api/core";
 import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton } from "./components/buttons";
-import { trackBackPath, handleKeyPress } from "./helpers";
+import { handleKeyPress, Path } from "./helpers";
+import { path } from "@tauri-apps/api";
 
 export { App };
 
 const App = () => {
   const [codeText, setCodeText] = useState("");
-  const [selectedPath, setSelectedPath] = useState(
-    "/home/kareem/Desktop",
-  );
+  const [selectedPath, setSelectedPath] = useState("");
+  const [os, setOs] = useState("");
   const [dirFiles, setDirFiles] = useState([]);
   const [fileExplorerModalOpen, setFileExplorerModalOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const pathStack = useRef(new Path());
   const file = useRef(null);
+
+  useEffect(() => {
+    const operatingSystem = async () => {
+      const os = await invoke("get_os");
+      console.log("Operating System:", os);
+      setOs(os);
+      setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
+      pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
+    };
+    operatingSystem();
+  }, []);
 
   const saveCodeText = async () => {
     if (!file.current?.name) {
@@ -113,8 +125,11 @@ const App = () => {
             <PrimaryButton
               title="Back"
               onClick={() => {
-                setSelectedPath(trackBackPath(selectedPath, "linux"));
-                lsDir();
+                if (pathStack.current.size() > 1) {
+                  pathStack.current.pop();
+                  setSelectedPath(pathStack.current.peek());
+                  lsDir();
+                }
               }}
             />
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
