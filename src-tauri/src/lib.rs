@@ -47,6 +47,11 @@ struct DirEntry {
 }
 
 #[tauri::command]
+fn kill_app() {
+    std::process::exit(0);
+}
+
+#[tauri::command]
 fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
     let entries = fs::read_dir(&path).map_err(|e| e.to_string())?;
 
@@ -88,7 +93,7 @@ pub fn run() {
     tauri::Builder
         ::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, list_dir])
+        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, list_dir, kill_app])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
