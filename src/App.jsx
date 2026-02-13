@@ -39,9 +39,9 @@ const App = () => {
 
   const keysHmapRef = useRef({
     "Control+e": () => setFileExplorerModalOpen(true),
-    "Control+s": async () => await saveCodeText(),
     "Control+q": () => invoke("kill_app"),
-    "Escape": () => {
+    // "Control+s": async () => await saveCodeText(), // this is unpredictable so will be removed for now. it doesnt save anything and sets the file to ""... weird...
+    Escape: () => {
       setFileExplorerModalOpen(false);
       setStatusMessage("");
     },
@@ -60,7 +60,7 @@ const App = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyPressEvent);
     };
-  }, [saveCodeText]);
+  }, [codeText]);
 
   useEffect(() => {
     selectedPath &&
@@ -71,15 +71,13 @@ const App = () => {
     const content = await invoke("get_file_content", {
       filePath: file.current?.name,
     });
-    return content
-      ? setCodeText(content)
-      : alert("File is empty. Please select a file with content.");
+    setCodeText(content);
+    return content;
   };
 
   const lsDir = async () => {
     const files = await invoke("list_dir", { path: selectedPath });
     setDirFiles(files);
-    console.log("Directory files:", files);
   };
 
   return (
