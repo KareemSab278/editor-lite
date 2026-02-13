@@ -14,30 +14,37 @@ const App = () => {
   );
   const [dirFiles, setDirFiles] = useState([]);
   const [fileExplorerModalOpen, setFileExplorerModalOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const file = useRef(null);
 
   const saveCodeText = async () => {
-    if (!file.current.name) {
+    if (!file.current?.name) {
       alert("No file selected. Please select a file to save.");
       return;
     }
-
-    return codeText.trim().length > 0
-      ? setCodeText(
-          await invoke("save_code_text", {
-            codeText: codeText,
-            fileName: file.current?.name,
-          }),
-        )
-      : alert(
-          "Imagine saving an empty file. Please enter some code before saving!",
-        );
+    setStatusMessage(
+      await invoke("save_code_text", {
+        codeText: codeText,
+        fileName: file.current?.name,
+      }),
+    );
   };
+
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => setStatusMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
 
   const keysHmapRef = useRef({
     "Control+e": () => setFileExplorerModalOpen(true),
     "Control+s": async () => await saveCodeText(),
     "Control+q": () => invoke("kill_app"),
+    "Escape": () => {
+      setFileExplorerModalOpen(false);
+      setStatusMessage("");
+    },
   });
 
   useEffect(() => {
@@ -77,6 +84,11 @@ const App = () => {
 
   return (
     <div style={styles.body}>
+      {statusMessage && (
+        <div style={{ color: "#757575", padding: "0.1rem" }}>
+          {statusMessage}
+        </div>
+      )}
       <CodeEditorField
         fileName={file.current?.name}
         codeText={codeText}
