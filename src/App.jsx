@@ -4,7 +4,6 @@ import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton } from "./components/buttons";
 import { handleKeyPress, Path } from "./helpers";
-import { path } from "@tauri-apps/api";
 
 export { App };
 
@@ -13,8 +12,8 @@ const App = () => {
   const [selectedPath, setSelectedPath] = useState("");
   const [os, setOs] = useState("");
   const [dirFiles, setDirFiles] = useState([]);
-  const [fileExplorerModalOpen, setFileExplorerModalOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [openModal, setOpenModal] = useState("");
   const pathStack = useRef(new Path());
   const file = useRef(null);
 
@@ -50,14 +49,16 @@ const App = () => {
   }, [statusMessage]);
 
   const keysHmapRef = useRef({
-    "Control+e": () => setFileExplorerModalOpen(true),
+    "Control+e": () => setOpenModal("fileExplorer"),
     "Control+q": () => invoke("kill_app"),
-    // i wanna add a backspace to the file explorer but it interferes with the code editor so maybe later...
-    // "Control+s": async () => await saveCodeText(), // this is unpredictable so will be removed for now. it doesnt save anything and sets the file to ""... weird...
+    "Control+j": () => invoke("start_terminal", { path: selectedPath }),
+    "Control+h": () => setOpenModal("help"),
     Escape: () => {
-      setFileExplorerModalOpen(false);
+      setOpenModal("");
       setStatusMessage("");
     },
+    // "Control+s": async () => await saveCodeText(), // this is unpredictable so will be removed for now. it doesnt save anything and sets the file to ""... weird...
+    // i wanna add a backspace to the file explorer but it interferes with the code editor so maybe later...
   });
 
   useEffect(() => {
@@ -84,7 +85,8 @@ const App = () => {
     const content = await invoke("get_file_content", {
       filePath: file.current?.name,
     });
-    setCodeText(content);
+    const decodedContent = atob(content);
+    setCodeText(decodedContent);
     return content;
   };
 
@@ -112,13 +114,20 @@ const App = () => {
         title="Explorer"
         onClick={async () => {
           await lsDir();
-          setFileExplorerModalOpen(true);
+          setOpenModal("fileExplorer");
         }}
       />
 
       <PrimaryModal
-        opened={fileExplorerModalOpen}
-        closed={() => setFileExplorerModalOpen(false)}
+        opened={openModal === "help"}
+        closed={() => setOpenModal("")}
+        title="Help - Keyboard Shortcuts"
+        children={helpText}
+      />
+
+      <PrimaryModal
+        opened={openModal === "fileExplorer"}
+        closed={() => setOpenModal("")}
         title={`Select a file from: ${selectedPath}`}
         children={
           <div style={{ padding: "1rem" }}>
@@ -138,12 +147,13 @@ const App = () => {
                   key={index}
                   onClick={() => {
                     if (fileObj.is_dir) {
+                      pathStack.current.push(fileObj.path);
                       setSelectedPath(fileObj.path);
                       lsDir();
                     } else {
                       file.current = { name: fileObj.path };
                       getFileContent();
-                      setFileExplorerModalOpen(false);
+                      setOpenModal("");
                     }
                   }}
                   style={{
@@ -174,6 +184,17 @@ const App = () => {
     </div>
   );
 };
+
+const helpText = (
+  <div style={{ padding: "1rem", color: "#757575" }}>
+    <p> Control + E: Open File Explorer</p>
+    <p> Control + S: Save Current File</p>
+    <p> Control + J: Open Terminal in Current Directory</p>
+    <p> Control + H: Open This Help Modal</p>
+    <p> Control + Q: Quit Application</p>
+    <p> Escape: Close Modals / Clear Status Messages</p>
+  </div>
+);
 
 const styles = {
   body: {

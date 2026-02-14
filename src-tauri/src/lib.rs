@@ -6,6 +6,8 @@ use std::fs::OpenOptions; // file access with read and write amd append
 use std::io::Write;
 use std::fs;
 use serde::Serialize;
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 
 #[tauri::command]
 fn save_code_text(code_text: &str, file_name: &str) -> String {
@@ -26,7 +28,10 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
 
     file.write(output_text.as_bytes()).expect("Could not write to file.");
 
-    let output: String = format!("saved code {}...", code_text.chars().take(10).collect::<String>()); // In a real app, you would save the code text to a file or database here
+    let output: String = format!(
+        "saved code {}...",
+        code_text.chars().take(10).collect::<String>()
+    ); // In a real app, you would save the code text to a file or database here
     return output;
 }
 
@@ -35,7 +40,10 @@ fn get_file_content(file_path: String) -> String {
     // read the content of the file and return it as a string
     // open file selector and get the file path and then read the file and return the content to the frontend as txt plain
     let file: String = file_path;
-    let content = std::fs::read_to_string(file).expect("Could not read file");
+    // let content = std::fs::read_to_string(file).expect("Could not read file");
+    let bytes = std::fs::read(file).expect("Could not read file");
+    let content = STANDARD.encode(bytes);
+    // warning: use of deprecated function `base64::encode`: Use Engine::encode
     return content;
 }
 
@@ -77,28 +85,51 @@ fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
     Ok(result)
 }
 
-
-// i need to show all files when hitting ctrl + E
-// fn ls_files() // will show a file explorer to select which file to open and then read the file and return the content to the frontend as txt plain
-// then set state of code to the content of the file
-
-// i need to have an undo and redo feature but i think html textarea has that built in so i can just use that and then save the content of the textarea to a file when hitting ctrl + s
-
-// i also need some features like opening a terminal in the same dir as file open using ctrl + j
+#[tauri::command]
+fn start_terminal(path: &str) {
+    let os: String = get_os();
+    if os == "windows" {
+        std::process::Command
+            ::new("cmd")
+            .arg("/C")
+            .arg(format!("start cmd /K cd {}", path))
+            .spawn()
+            .expect("Failed to open terminal");
+    }
+    if os == "linux" {
+        std::process::Command
+            ::new("gnome-terminal")
+            .arg("--working-directory")
+            .arg(path)
+            .spawn()
+            .expect("Failed to open terminal");
+    }
+    if os == "macos" {
+        std::process::Command
+            ::new("open")
+            .arg("-a")
+            .arg("Terminal")
+            .arg(path)
+            .spawn()
+            .expect("Failed to open terminal");
+    }
+}
 
 // ill need to show all files in dir on left but i dont think i want to to ensure a clutter free experience...
 // so just the command to open file explorer in same dir and whenselect new file it oepns new tab. so i need to inc tabs in front...
 
 // ctrl + w to close tabs with save modal prompt. (unless 0 tabs then just close tab without save modal prompt and dont save )
 // ctrl + q to terminate program with save modal prompt.
-// ctrl + q + ! to close tab without save modal prompt and dont save. 
+// ctrl + q + ! to close tab without save modal prompt and dont save.
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder
         ::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![save_code_text, get_file_content, list_dir, kill_app, get_os])
+        .invoke_handler(
+            tauri::generate_handler![save_code_text, get_file_content, list_dir, kill_app, get_os, start_terminal],
+        )
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
