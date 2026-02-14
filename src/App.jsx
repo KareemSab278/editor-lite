@@ -4,6 +4,7 @@ import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton } from "./components/buttons";
 import { handleKeyPress, Path, helpText } from "./helpers";
+import { path } from "@tauri-apps/api";
 
 export { App };
 
@@ -48,10 +49,12 @@ const App = () => {
     }
   }, [statusMessage]);
 
+  const openTerminal = async () => invoke("start_terminal", { path: pathStack?.current.peek() });
+
   const keysHmapRef = useRef({
     "Control+e": () => setOpenModal("fileExplorer"),
     "Control+q": () => invoke("kill_app"),
-    "Control+j": () => invoke("start_terminal", { path: selectedPath }),
+    "Control+j": () =>  openTerminal(),
     "Control+h": () => setOpenModal("help"),
     Escape: () => {
       setOpenModal("");
@@ -132,7 +135,7 @@ const App = () => {
             <PrimaryButton
               title="Back"
               onClick={() => {
-                if (pathStack.current.size() > 1) {
+                if (!pathStack.current.isEmpty()) {
                   pathStack.current.pop();
                   setSelectedPath(pathStack.current.peek());
                   lsDir();

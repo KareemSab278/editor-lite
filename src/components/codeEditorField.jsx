@@ -25,7 +25,7 @@ const CodeEditorField = ({ fileName, codeText, setCodeText }) => {
 
 const styles = {
   body: {
-    background: "#1e1e1e",
+    background: "#000000",
     borderRadius: 4,
     border: "1px solid #222",
     margin: "1rem 0",
@@ -33,17 +33,14 @@ const styles = {
     padding: 0,
   },
   header: {
-    background: "#23272e",
+    background: "#ffd0002a",
     color: "#d4d4d4",
     fontFamily: 'Consolas, "Fira Mono", "Menlo", monospace',
-    fontSize: 14,
-    padding: "0.5rem 1rem",
-    borderBottom: "1px solid #222",
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
+    fontSize: 12,
+    height: 15,
   },
   editor: {
-    background: "#1e1e1e",
+    background: "#000000",
     color: "#d4d4d4",
     fontFamily: 'Consolas, "Fira Mono", "Menlo", monospace',
     fontSize: 14,
