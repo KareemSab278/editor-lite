@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton } from "./components/buttons";
-import { handleKeyPress, Path } from "./helpers";
+import { handleKeyPress, Path, helpText } from "./helpers";
 
 export { App };
 
@@ -17,18 +17,18 @@ const App = () => {
   const pathStack = useRef(new Path());
   const file = useRef(null);
 
-  useEffect(() => {
-    const operatingSystem = async () => {
+  useEffect(() => { // for finding os
+    const returnOperatingSystem = async () => {
       const os = await invoke("get_os");
       console.log("Operating System:", os);
       setOs(os);
       setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
       pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
     };
-    operatingSystem();
+    returnOperatingSystem();
   }, []);
 
-  const saveCodeText = async () => {
+  const saveCodeText = async () => { // to save code text (doesnt work in keybindings yet, only button)
     if (!file.current?.name) {
       alert("No file selected. Please select a file to save.");
       return;
@@ -41,7 +41,7 @@ const App = () => {
     );
   };
 
-  useEffect(() => {
+  useEffect(() => { // for clearing status messages after 3 seconds
     if (statusMessage) {
       const timer = setTimeout(() => setStatusMessage(""), 3000);
       return () => clearTimeout(timer);
@@ -57,11 +57,9 @@ const App = () => {
       setOpenModal("");
       setStatusMessage("");
     },
-    // "Control+s": async () => await saveCodeText(), // this is unpredictable so will be removed for now. it doesnt save anything and sets the file to ""... weird...
-    // i wanna add a backspace to the file explorer but it interferes with the code editor so maybe later...
   });
 
-  useEffect(() => {
+  useEffect(() => { // for handling keybindings
     const handleKeyPressEvent = (event) => {
       const keyString = `${event.ctrlKey ? "Control+" : ""}${event.key}`;
       const isShortcut = handleKeyPress(keyString, keysHmapRef.current);
@@ -184,17 +182,6 @@ const App = () => {
     </div>
   );
 };
-
-const helpText = (
-  <div style={{ padding: "1rem", color: "#757575" }}>
-    <p> Control + E: Open File Explorer</p>
-    <p> Control + S: Save Current File</p>
-    <p> Control + J: Open Terminal in Current Directory</p>
-    <p> Control + H: Open This Help Modal</p>
-    <p> Control + Q: Quit Application</p>
-    <p> Escape: Close Modals / Clear Status Messages</p>
-  </div>
-);
 
 const styles = {
   body: {

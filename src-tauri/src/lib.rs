@@ -115,13 +115,6 @@ fn start_terminal(path: &str) {
     }
 }
 
-// ill need to show all files in dir on left but i dont think i want to to ensure a clutter free experience...
-// so just the command to open file explorer in same dir and whenselect new file it oepns new tab. so i need to inc tabs in front...
-
-// ctrl + w to close tabs with save modal prompt. (unless 0 tabs then just close tab without save modal prompt and dont save )
-// ctrl + q to terminate program with save modal prompt.
-// ctrl + q + ! to close tab without save modal prompt and dont save.
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder
