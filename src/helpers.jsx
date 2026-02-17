@@ -1,4 +1,4 @@
-export { handleKeyPress, Path, helpText };
+export { handleKeyPress, Path, helpText, findLangFromFile };
 
 const handleKeyPress = (eventKeystring, keysHmap) => {
   const action = keysHmap[eventKeystring];
@@ -33,3 +33,16 @@ const helpText = (
 );
 
 // just added this code in its own source file from my new code editor lol
+
+
+function findLangFromFile(fileName = "") {
+  const ext = fileName.split(".").pop().toLowerCase();
+  return {
+    js: "javascript", jsx: "jsx", ts: "typescript", tsx: "tsx",
+    py: "python", rs: "rust", rb: "ruby", java: "java",
+    c: "c", cpp: "cpp", h: "c", cs: "csharp", go: "go",
+    php: "php", html: "markup", htm: "markup", css: "css",
+    json: "json", md: "markdown", sh: "bash", yml: "yaml",
+    yaml: "yaml"
+  }[ext] || "javascript";
+}

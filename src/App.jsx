@@ -4,7 +4,6 @@ import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton } from "./components/buttons";
 import { handleKeyPress, Path, helpText } from "./helpers";
-import { path } from "@tauri-apps/api";
 
 export { App };
 
@@ -41,13 +40,6 @@ const App = () => {
       }),
     );
   };
-
-  useEffect(() => { // for clearing status messages after 3 seconds
-    if (statusMessage) {
-      const timer = setTimeout(() => setStatusMessage(""), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [statusMessage]);
 
   const openTerminal = async () => invoke("start_terminal", { path: pathStack?.current.peek() });
 
@@ -98,15 +90,12 @@ const App = () => {
 
   return (
     <div style={styles.body}>
-      {statusMessage && (
-        <div style={{ color: "#757575", padding: "0.1rem" }}>
-          {statusMessage}
-        </div>
-      )}
+
       <CodeEditorField
         fileName={file.current?.name}
         codeText={codeText}
         setCodeText={setCodeText}
+        statusMessage={statusMessage}
       />
 
       <PrimaryButton title="save" onClick={async () => await saveCodeText()} />
