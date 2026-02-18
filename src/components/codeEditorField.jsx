@@ -63,7 +63,7 @@ const styles = {
     background: "#000000",
     borderRadius: 4,
     border: "1px solid #222",
-    margin: "1rem 0",
+    // margin: "1rem 0",
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
     padding: 0,
   },

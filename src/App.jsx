@@ -2,8 +2,8 @@ import { useRef, useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
-import { PrimaryButton } from "./components/buttons";
-import { handleKeyPress, Path, helpText } from "./helpers";
+import { PrimaryButton, TabButton } from "./components/buttons";
+import { handleKeyPress, Path, helpText, returnFileTypeImage } from "./helpers";
 
 export { App };
 
@@ -16,11 +16,18 @@ const App = () => {
   const [openModal, setOpenModal] = useState("");
   const pathStack = useRef(new Path());
   const file = useRef(null);
+  const [files, setFiles] = useState([]);
 
-  useEffect(() => { // for finding os
+  useEffect(() => {
+    const clearStatusMessage = setTimeout(() => {
+      setStatusMessage("");
+    }, 2000);
+    return () => clearTimeout(clearStatusMessage);
+  }, [statusMessage]);
+
+  useEffect(() => {
     const returnOperatingSystem = async () => {
       const os = await invoke("get_os");
-      console.log("Operating System:", os);
       setOs(os);
       setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
       pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
@@ -28,7 +35,7 @@ const App = () => {
     returnOperatingSystem();
   }, []);
 
-  const saveCodeText = async () => { // to save code text (doesnt work in keybindings yet, only button)
+  const saveCodeText = async () => {
     if (!file.current?.name) {
       alert("No file selected. Please select a file to save.");
       return;
@@ -41,20 +48,46 @@ const App = () => {
     );
   };
 
-  const openTerminal = async () => invoke("start_terminal", { path: pathStack?.current.peek() });
+  const openTerminal = async () =>
+    invoke("start_terminal", { path: pathStack?.current.peek() });
 
   const keysHmapRef = useRef({
     "Control+e": () => setOpenModal("fileExplorer"),
     "Control+q": () => invoke("kill_app"),
-    "Control+j": () =>  openTerminal(),
+    "Control+j": () => openTerminal(),
     "Control+h": () => setOpenModal("help"),
+    "Control+w": () => closeCurrentFile(),
     Escape: () => {
       setOpenModal("");
       setStatusMessage("");
     },
   });
 
-  useEffect(() => { // for handling keybindings
+  const closeCurrentFile = () => {
+    const currentPath = file.current?.name;
+    if (!currentPath) return;
+
+    setFiles((prev) => {
+      if (!Array.isArray(prev) || prev.length === 0) return [];
+      const idx = prev.findIndex((p) => p.path === currentPath);
+      if (idx === -1) return prev;
+
+      const newFiles = prev.filter((p) => p.path !== currentPath);
+
+      if (newFiles.length === 0) {
+        file.current = null;
+        setCodeText("");
+      } else {
+        const nextIndex = idx > 0 ? idx - 1 : 0;
+        file.current = { name: newFiles[nextIndex].path };
+        getFileContent();
+      }
+
+      return newFiles;
+    });
+  };
+
+  useEffect(() => {
     const handleKeyPressEvent = (event) => {
       const keyString = `${event.ctrlKey ? "Control+" : ""}${event.key}`;
       const isShortcut = handleKeyPress(keyString, keysHmapRef.current);
@@ -90,6 +123,20 @@ const App = () => {
 
   return (
     <div style={styles.body}>
+      {files.length > 0 && (
+        <div style={{ display: "flex", background: "#1e1e1e" }}>
+          {files.map((f) => (
+            <TabButton
+              key={f.path}
+              title={f.name}
+              onClick={() => {
+                file.current = { name: f.path };
+                getFileContent();
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <CodeEditorField
         fileName={file.current?.name}
@@ -98,7 +145,7 @@ const App = () => {
         statusMessage={statusMessage}
       />
 
-      <PrimaryButton title="save" onClick={async () => await saveCodeText()} />
+      <PrimaryButton title="Save" onClick={async () => await saveCodeText()} />
 
       <PrimaryButton
         title="Explorer"
@@ -141,30 +188,28 @@ const App = () => {
                       setSelectedPath(fileObj.path);
                       lsDir();
                     } else {
+                      setFiles((prev) => {
+                        if (prev.find((p) => p.path === fileObj.path))
+                          return prev;
+                        return [
+                          ...prev,
+                          { name: fileObj.name, path: fileObj.path },
+                        ];
+                      });
                       file.current = { name: fileObj.path };
                       getFileContent();
                       setOpenModal("");
                     }
                   }}
-                  style={{
-                    ...styles.modalBody,
-                    background: fileObj.is_dir
-                      ? "rgba(100, 150, 200, 0.2)"
-                      : "rgba(100, 200, 100, 0.1)",
-                    color: fileObj.is_dir ? "#64b5ff" : "#64c864",
-                  }}
+                  style={styles.modalBody}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.background = fileObj.is_dir
-                      ? "rgba(100, 150, 200, 0.4)"
-                      : "rgba(100, 200, 100, 0.2)";
+                    e.currentTarget.style.background = "#666";
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.background = fileObj.is_dir
-                      ? "rgba(100, 150, 200, 0.2)"
-                      : "rgba(100, 200, 100, 0.1)";
+                    e.currentTarget.style.background = "#444";
                   }}
                 >
-                  {fileObj.is_dir ? "📁 " : "📄 "} {fileObj.name}
+                  {fileObj.is_dir ? "📁 " : <img src={returnFileTypeImage(fileObj.name)} alt="file icon" style={{ width: 16, height: 16 }} />} {fileObj.name}
                 </li>
               ))}
             </ul>
@@ -183,6 +228,9 @@ const styles = {
     margin: 0,
   },
   modalBody: {
+    background: "#444",
+    color: "#ffffff",
+    fontFamily: "'Segoe UI', 'Inter', 'Roboto', 'Helvetica Neue', sans-serif",
     padding: "0.75rem",
     marginBottom: "0.5rem",
     border: "1px solid #333",
