@@ -95,12 +95,11 @@ const App = () => {
         event.preventDefault();
       }
     };
-
     window.addEventListener("keydown", handleKeyPressEvent);
     return () => {
       window.removeEventListener("keydown", handleKeyPressEvent);
     };
-  }, [codeText]);
+  }, []);
 
   useEffect(() => {
     selectedPath &&

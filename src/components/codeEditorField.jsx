@@ -40,6 +40,8 @@ import "prismjs/components/prism-yaml";
 export { CodeEditorField };
 
 const CodeEditorField = ({ fileName, codeText, setCodeText, statusMessage }) => {
+  const langId = findLangFromFile(fileName);
+  const grammar = Prism.languages[langId] || Prism.languages.javascript;
   return (
     <section style={styles.body}>
       <div style={styles.header}>{fileName || 'No File Selected'} {fileName && ' | '} {statusMessage}</div>
@@ -47,10 +49,9 @@ const CodeEditorField = ({ fileName, codeText, setCodeText, statusMessage }) => 
         value={codeText}
         onValueChange={setCodeText}
         highlight={(code) => {
-          const langId = findLangFromFile(fileName);
-          const grammar = Prism.languages[langId] || Prism.languages.javascript;
-          return Prism.highlight(code, grammar, langId);
-        }}
+          // this is causing the editor to re-render on every keystroke and it is lagging bad on 1000+ lines
+          return Prism.highlight(code, grammar, langId); // <-- FIX THIS TO ONLY RENDER THE VISIBLE PORTION OF THE CODE + 20 LINES ABOVE AND BELOW THE VISIBLE PORTION
+        }} // to be done tonight
         padding={16}
         style={styles.editor}
       />
