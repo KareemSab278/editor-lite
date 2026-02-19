@@ -1,59 +1,26 @@
-import { useState } from "react";
-import Editor from "react-simple-code-editor";
-import { findLangFromFile } from "../helpers";
-import Prism from "prismjs";
-import "prismjs/themes/prism-tomorrow.css";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-python";
-import "prismjs/components/prism-jsx";
-import "prismjs/components/prism-tsx";
-import "prismjs/components/prism-c";
-import "prismjs/components/prism-csharp";
-import "prismjs/components/prism-cpp";
-import "prismjs/components/prism-elixir";
-import "prismjs/components/prism-fsharp";
-import "prismjs/components/prism-git";
-import "prismjs/components/prism-go";
-import "prismjs/components/prism-graphql";
-import "prismjs/components/prism-groovy";
-import "prismjs/components/prism-haskell";
-import "prismjs/components/prism-java";
-import "prismjs/components/prism-json";
-import "prismjs/components/prism-kotlin";
-import "prismjs/components/prism-lua";
-import "prismjs/components/prism-makefile";
-import "prismjs/components/prism-markdown";
-import "prismjs/components/prism-markup";
-import "prismjs/components/prism-markup-templating";
-import "prismjs/components/prism-php";
-import "prismjs/components/prism-php-extras";
-import "prismjs/components/prism-tsx";
-import "prismjs/components/prism-ruby";
-import "prismjs/components/prism-rust";
-import "prismjs/components/prism-sql";
-import "prismjs/components/prism-swift";
-import "prismjs/components/prism-textile";
-import "prismjs/components/prism-typescript";
-import "prismjs/components/prism-wasm";
-import "prismjs/components/prism-yaml";
+import Editor from "@monaco-editor/react";
 
 export { CodeEditorField };
 
-const CodeEditorField = ({ fileName, codeText, setCodeText, statusMessage }) => {
-  const langId = findLangFromFile(fileName);
-  const grammar = Prism.languages[langId] || Prism.languages.javascript;
+const CodeEditorField = ({
+  fileName,
+  codeText,
+  setCodeText,
+  statusMessage,
+  height = "calc(100vh - 100px)",
+}) => {
   return (
     <section style={styles.body}>
-      <div style={styles.header}>{fileName || 'No File Selected'} {fileName && ' | '} {statusMessage}</div>
+      <div style={styles.header}>
+        {fileName || "No File Selected"} {fileName && " | "} {statusMessage}
+      </div>
       <Editor
+        height={height}
+        defaultLanguage="javascript"
+        language={extToMonacoLang(fileName)}
         value={codeText}
-        onValueChange={setCodeText}
-        highlight={(code) => {
-          // this is causing the editor to re-render on every keystroke and it is lagging bad on 1000+ lines
-          return Prism.highlight(code, grammar, langId); // <-- FIX THIS TO ONLY RENDER THE VISIBLE PORTION OF THE CODE + 20 LINES ABOVE AND BELOW THE VISIBLE PORTION
-        }} // to be done tonight
-        padding={16}
-        style={styles.editor}
+        onChange={(value) => setCodeText(value || "")}
+        theme="vs-dark"
       />
     </section>
   );
@@ -94,14 +61,27 @@ const styles = {
   },
 };
 
-function extToPrismLang(fileName = "") {
+function extToMonacoLang(fileName = "") {
   const ext = fileName.split(".").pop().toLowerCase();
   return {
-    js: "javascript", jsx: "jsx", ts: "typescript", tsx: "tsx",
-    py: "python", rs: "rust", rb: "ruby", java: "java",
-    c: "c", cpp: "cpp", h: "c", cs: "csharp", go: "go",
-    php: "php", html: "markup", htm: "markup", css: "css",
-    json: "json", md: "markdown", sh: "bash", yml: "yaml",
-    yaml: "yaml"
+    js: "javascript",
+    jsx: "javascript",
+    ts: "typescript",
+    tsx: "typescript",
+    py: "python",
+    rs: "rust",
+    rb: "ruby",
+    java: "java",
+    c: "c",
+    cpp: "cpp",
+    cs: "csharp",
+    go: "go",
+    php: "php",
+    html: "html",
+    css: "css",
+    json: "json",
+    md: "markdown",
+    yml: "yaml",
+    yaml: "yaml",
   }[ext] || "javascript";
 }

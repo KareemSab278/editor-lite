@@ -15,7 +15,7 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
     let file_name: String = file_name.to_string();
     let output_text: String = code_text.to_string();
 
-    let mut file = OpenOptions::new()
+    let mut file: fs::File = OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)

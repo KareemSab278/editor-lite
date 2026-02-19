@@ -208,7 +208,16 @@ const App = () => {
                     e.currentTarget.style.background = "#444";
                   }}
                 >
-                  {fileObj.is_dir ? "📁 " : <img src={returnFileTypeImage(fileObj.name)} alt="file icon" style={{ width: 16, height: 16 }} />} {fileObj.name}
+                  {fileObj.is_dir ? (
+                    "📁 "
+                  ) : (
+                    <img
+                      src={returnFileTypeImage(fileObj.name)}
+                      alt="file icon"
+                      style={{ width: 16, height: 16 }}
+                    />
+                  )}{" "}
+                  {fileObj.name}
                 </li>
               ))}
             </ul>
