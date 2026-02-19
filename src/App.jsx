@@ -29,7 +29,7 @@ const App = () => {
     const returnOperatingSystem = async () => {
       const os = await invoke("get_os");
       setOs(os);
-      setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
+      setSelectedPath(os === "windows" ? "C:\\Users\\coinadrink\\" : "/home");
       pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
     };
     returnOperatingSystem();
@@ -46,22 +46,33 @@ const App = () => {
         fileName: file.current?.name,
       }),
     );
+    console.log("Saved file:", file.current?.name);
   };
 
   const openTerminal = async () =>
     invoke("start_terminal", { path: pathStack?.current.peek() });
 
-  const keysHmapRef = useRef({
+  // replace the old one-time-initialized ref with a ref that's populated each render
+  const keysHmapRef = useRef({});
+
+  keysHmapRef.current = {
     "Control+e": () => setOpenModal("fileExplorer"),
     "Control+q": () => invoke("kill_app"),
     "Control+j": () => openTerminal(),
     "Control+h": () => setOpenModal("help"),
     "Control+w": () => closeCurrentFile(),
+    "Control+s": async () => {
+      if (!file.current?.name) {
+        alert("No file selected. Please select a file to save.");
+        return;
+      }
+      await saveCodeText();
+    },
     Escape: () => {
       setOpenModal("");
       setStatusMessage("");
     },
-  });
+  };
 
   const closeCurrentFile = () => {
     const currentPath = file.current?.name;
@@ -82,7 +93,6 @@ const App = () => {
         file.current = { name: newFiles[nextIndex].path };
         getFileContent();
       }
-
       return newFiles;
     });
   };
@@ -106,14 +116,19 @@ const App = () => {
       invoke("list_dir", { path: selectedPath }).then(setDirFiles);
   }, [selectedPath]);
 
-  const getFileContent = async () => {
+const getFileContent = async () => {
+  if (!file.current?.name) return;
+  try {
     const content = await invoke("get_file_content", {
       filePath: file.current?.name,
     });
-    const decodedContent = atob(content);
-    setCodeText(decodedContent);
+    setCodeText(content);
     return content;
-  };
+  } catch (err) {
+    setStatusMessage("Could not read file: " + err);
+  }
+};
+
 
   const lsDir = async () => {
     const files = await invoke("list_dir", { path: selectedPath });
@@ -128,6 +143,7 @@ const App = () => {
             <TabButton
               key={f.path}
               title={f.name}
+              active={file.current?.name === f.path}
               onClick={() => {
                 file.current = { name: f.path };
                 getFileContent();

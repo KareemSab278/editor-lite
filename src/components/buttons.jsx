@@ -25,22 +25,14 @@ const PrimaryButton = ({ title, onClick }) => {
   );
 };
 
-const TabButton = ({ title, onClick }) => {
+const TabButton = ({ title, onClick, active }) => {
   return (
     <section style={{ display: "inline-block", margin: "8px" }}>
       <Button
         variant="filled"
         size="xs"
         radius="xl"
-        style={styles.tab}
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = "rgba(156, 156, 156, 0.7)";
-          e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.18)";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = "rgba(99, 99, 99, 0.42)";
-          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.12)";
-        }}
+        style={active ? styles.tabActive : styles.tab}
         onClick={onClick}
       >
         {title}
@@ -63,12 +55,24 @@ const styles = {
     transition: "background 0.2s, box-shadow 0.2s",
   },
   tab: {
-    backgroundColor: "rgba(99, 99, 99, 0.42)",
+    backgroundColor: "rgba(0, 0, 0, 0)",
     color: "#fff",
     padding: "4px 8px",
     fontWeight: "bold",
     fontSize: "1rem",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.50)",
+    border: "none",
+    borderRadius: "2px",
+    cursor: "pointer",
+    transition: "background 0.2s, box-shadow 0.2s",
+  },
+  tabActive: {
+    backgroundColor: "rgba(255, 255, 255, 0.29)",
+    color: "#fff",
+    padding: "4px 8px",
+    fontWeight: "bold",
+    fontSize: "1rem",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.50)",
     border: "none",
     borderRadius: "2px",
     cursor: "pointer",

@@ -34,12 +34,17 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
 }
 
 
+// #[tauri::command]
+// fn get_file_content(file_path: String) -> String {
+//     let file: String = file_path;
+//     let bytes = std::fs::read(file).expect("Could not read file");
+//     let content = STANDARD.encode(bytes);
+//     return content;
+// }
+
 #[tauri::command]
-fn get_file_content(file_path: String) -> String {
-    let file: String = file_path;
-    let bytes = std::fs::read(file).expect("Could not read file");
-    let content = STANDARD.encode(bytes);
-    return content;
+fn get_file_content(file_path: String) -> Result<String, String> {
+    std::fs::read_to_string(&file_path).map_err(|e| e.to_string())
 }
 
 
