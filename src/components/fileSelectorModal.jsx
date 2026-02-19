@@ -11,7 +11,6 @@ const PrimaryModal = ({ opened, closed, title, children }) => {
           {title}
         </h2>
         {children}
-        <PrimaryButton title="Close" onClick={closed} />
       </div>
     </div>
   );
@@ -29,14 +28,15 @@ const style = {
     alignItems: "center",
     justifyContent: "center",
     zIndex: 9999,
+    fontFamily: 'Consolas, "Fira Mono", "Menlo", monospace'
   },
   innerBody: {
     background: "#1e1e1e",
     border: "1px solid #333",
     borderRadius: 8,
     padding: "2rem",
-    maxWidth: "600px",
-    maxHeight: "80vh",
+    width: "600px",
+    height: "80vh",
     overflow: "auto",
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
     color: "#d4d4d4",

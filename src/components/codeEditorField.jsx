@@ -7,12 +7,12 @@ const CodeEditorField = ({
   codeText,
   setCodeText,
   statusMessage,
-  height = "calc(100vh - 100px)",
+  height = "100vh",
 }) => {
   return (
     <section style={styles.body}>
       <div style={styles.header}>
-        {fileName || "No File Selected"} {fileName && " | "} {statusMessage}
+        {fileName || "Ctrl + Shift + H For Help"} {fileName && " | "} {statusMessage}
       </div>
       <Editor
         height={height}

@@ -15,14 +15,13 @@ const handleKeyPress = (eventKeystring, keysHmap) => {
 };
 
 const helpText = (
-  <div style={{ padding: "1rem", color: "#757575" }}>
+  <div style={{ padding: "1rem", color: "#a8a8a8" }}>
     <p> Control + E: Open File Explorer</p>
-    <p> Control + S: Save Current File (Not Implemented)</p>
+    <p> Control + S: Save Current File</p>
     <p> Control + J: Open Terminal in Current Directory</p>
-    <p> Control + H: Open This Help Modal</p>
+    <p> Control + Shift + H: Open This Help Modal</p>
     <p> Control + Q: Quit Application</p>
     <p> Control + W: Close Current File</p>
-
     <p> Escape: Close Modals / Clear Status Messages</p>
   </div>
 );

@@ -2,6 +2,8 @@
 
 // https://www.youtube.com/watch?v=BGm0SCfY5Ak
 
+// will need to come back later to add result enums for err handling to avoid panics and crashes but thats later lol
+
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use serde::Serialize;

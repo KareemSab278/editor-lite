@@ -29,7 +29,7 @@ const App = () => {
     const returnOperatingSystem = async () => {
       const os = await invoke("get_os");
       setOs(os);
-      setSelectedPath(os === "windows" ? "C:\\Users\\coinadrink\\" : "/home");
+      setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
       pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
     };
     returnOperatingSystem();
@@ -52,14 +52,12 @@ const App = () => {
   const openTerminal = async () =>
     invoke("start_terminal", { path: pathStack?.current.peek() });
 
-  // replace the old one-time-initialized ref with a ref that's populated each render
   const keysHmapRef = useRef({});
-
   keysHmapRef.current = {
     "Control+e": () => setOpenModal("fileExplorer"),
     "Control+q": () => invoke("kill_app"),
     "Control+j": () => openTerminal(),
-    "Control+h": () => setOpenModal("help"),
+    "Control+H": () => setOpenModal("help"),
     "Control+w": () => closeCurrentFile(),
     "Control+s": async () => {
       if (!file.current?.name) {
@@ -67,6 +65,17 @@ const App = () => {
         return;
       }
       await saveCodeText();
+    },
+    Backspace: () => {
+      if (openModal === "fileExplorer") {
+        if (!pathStack.current.isEmpty()) {
+          pathStack.current.pop();
+          setSelectedPath(pathStack.current.peek());
+          invoke("list_dir", { path: pathStack.current.peek() }).then(
+            setDirFiles,
+          );
+        }
+      }
     },
     Escape: () => {
       setOpenModal("");
@@ -116,19 +125,18 @@ const App = () => {
       invoke("list_dir", { path: selectedPath }).then(setDirFiles);
   }, [selectedPath]);
 
-const getFileContent = async () => {
-  if (!file.current?.name) return;
-  try {
-    const content = await invoke("get_file_content", {
-      filePath: file.current?.name,
-    });
-    setCodeText(content);
-    return content;
-  } catch (err) {
-    setStatusMessage("Could not read file: " + err);
-  }
-};
-
+  const getFileContent = async () => {
+    if (!file.current?.name) return;
+    try {
+      const content = await invoke("get_file_content", {
+        filePath: file.current?.name,
+      });
+      setCodeText(content);
+      return content;
+    } catch (err) {
+      setStatusMessage("Could not read file: " + err);
+    }
+  };
 
   const lsDir = async () => {
     const files = await invoke("list_dir", { path: selectedPath });
@@ -160,20 +168,10 @@ const getFileContent = async () => {
         statusMessage={statusMessage}
       />
 
-      <PrimaryButton title="Save" onClick={async () => await saveCodeText()} />
-
-      <PrimaryButton
-        title="Explorer"
-        onClick={async () => {
-          await lsDir();
-          setOpenModal("fileExplorer");
-        }}
-      />
-
       <PrimaryModal
         opened={openModal === "help"}
         closed={() => setOpenModal("")}
-        title="Help - Keyboard Shortcuts"
+        title="Keyboard Shortcuts"
         children={helpText}
       />
 
