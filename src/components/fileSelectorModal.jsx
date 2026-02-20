@@ -1,12 +1,11 @@
 export { PrimaryModal };
-import { PrimaryButton } from "./buttons";
 
 const PrimaryModal = ({ opened, closed, title, children }) => {
   if (!opened) return null;
 
   return (
-    <div style={style.mainBody} onClick={closed}>
-      <div style={style.innerBody} onClick={(e) => e.stopPropagation()}>
+    <div style={styles.mainBody} onClick={closed}>
+      <div style={styles.innerBody} onClick={(e) => e.stopPropagation()}>
         <h2 style={{ marginTop: 0, color: "#fff", marginBottom: "1.5rem" }}>
           {title}
         </h2>
@@ -16,7 +15,7 @@ const PrimaryModal = ({ opened, closed, title, children }) => {
   );
 };
 
-const style = {
+const styles = {
   mainBody: {
     position: "fixed",
     top: 0,

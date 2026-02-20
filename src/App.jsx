@@ -10,7 +10,6 @@ export { App };
 const App = () => {
   const [codeText, setCodeText] = useState("");
   const [selectedPath, setSelectedPath] = useState("");
-  const [os, setOs] = useState("");
   const [dirFiles, setDirFiles] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
   const [openModal, setOpenModal] = useState("");
@@ -18,69 +17,10 @@ const App = () => {
   const file = useRef(null);
   const [files, setFiles] = useState([]);
 
-  useEffect(() => {
-    const clearStatusMessage = setTimeout(() => {
-      setStatusMessage("");
-    }, 2000);
-    return () => clearTimeout(clearStatusMessage);
-  }, [statusMessage]);
-
-  useEffect(() => {
-    const returnOperatingSystem = async () => {
-      const os = await invoke("get_os");
-      setOs(os);
-      setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
-      pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
-    };
-    returnOperatingSystem();
-  }, []);
-
-  const saveCodeText = async () => {
-    if (!file.current?.name) {
-      alert("No file selected. Please select a file to save.");
-      return;
-    }
-    setStatusMessage(
-      await invoke("save_code_text", {
-        codeText: codeText,
-        fileName: file.current?.name,
-      }),
-    );
-    console.log("Saved file:", file.current?.name);
-  };
-
-  const openTerminal = async () =>
-    invoke("start_terminal", { path: pathStack?.current.peek() });
-
-  const keysHmapRef = useRef({});
-  keysHmapRef.current = {
-    "Control+e": () => setOpenModal("fileExplorer"),
-    "Control+q": () => invoke("kill_app"),
-    "Control+j": () => openTerminal(),
-    "Control+H": () => setOpenModal("help"),
-    "Control+w": () => closeCurrentFile(),
-    "Control+s": async () => {
-      if (!file.current?.name) {
-        alert("No file selected. Please select a file to save.");
-        return;
-      }
-      await saveCodeText();
-    },
-    Backspace: () => {
-      if (openModal === "fileExplorer") {
-        if (!pathStack.current.isEmpty()) {
-          pathStack.current.pop();
-          setSelectedPath(pathStack.current.peek());
-          invoke("list_dir", { path: pathStack.current.peek() }).then(
-            setDirFiles,
-          );
-        }
-      }
-    },
-    Escape: () => {
-      setOpenModal("");
-      setStatusMessage("");
-    },
+  const returnOperatingSystem = async () => {
+    const os = await invoke("get_os");
+    setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
+    pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
   };
 
   const closeCurrentFile = () => {
@@ -105,6 +45,67 @@ const App = () => {
       return newFiles;
     });
   };
+
+  const saveCodeText = async () => {
+    if (!file.current?.name) {
+      alert("No file selected. Please select a file to save.");
+      return;
+    }
+    setStatusMessage(
+      await invoke("save_code_text", {
+        codeText: codeText,
+        fileName: file.current?.name,
+      }),
+    );
+    console.log("Saved file:", file.current?.name);
+  };
+
+  const backTrackFilePath = () => {
+    if (openModal === "fileExplorer") {
+      if (!pathStack.current.isEmpty()) {
+        pathStack.current.pop();
+        setSelectedPath(pathStack.current.peek());
+        invoke("list_dir", { path: pathStack.current.peek() }).then(
+          setDirFiles,
+        );
+      }
+    }
+  };
+
+  const save = async () => {
+    if (!file.current?.name) {
+      alert("No file selected. Please select a file to save.");
+      return;
+    }
+    await saveCodeText();
+  };
+
+  const keysHmapRef = useRef({});
+  keysHmapRef.current = {
+    "Control+e": () => setOpenModal("fileExplorer"),
+    "Control+q": () => invoke("kill_app"),
+    "Control+j": () =>
+      invoke("start_terminal", { path: pathStack?.current.peek() }),
+    "Control+H": () => setOpenModal("help"),
+    "Control+w": () => closeCurrentFile(),
+    "Control+s": async () => await save(),
+    Backspace: () => backTrackFilePath(),
+    Escape: () => {
+      setOpenModal(null);
+      setStatusMessage(null);
+    },
+  };
+
+  useEffect(() => {
+    const clearStatusMessage = setTimeout(() => {
+      setStatusMessage("");
+    }, 2000);
+    return () => clearTimeout(clearStatusMessage);
+  }, [statusMessage]);
+
+  useEffect(() => {
+    returnOperatingSystem();
+  }, []);
 
   useEffect(() => {
     const handleKeyPressEvent = (event) => {

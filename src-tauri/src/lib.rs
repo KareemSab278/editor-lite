@@ -1,16 +1,9 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-
-// https://www.youtube.com/watch?v=BGm0SCfY5Ak
-
 // will need to come back later to add result enums for err handling to avoid panics and crashes but thats later lol
 
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
 use serde::Serialize;
 use std::fs;
-use std::fs::OpenOptions; // file access with read and write amd append
+use std::fs::OpenOptions;
 use std::io::Write;
-
 
 #[tauri::command]
 fn save_code_text(code_text: &str, file_name: &str) -> String {
@@ -34,15 +27,6 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
     // Code last saved at 10:08:46
     return output;
 }
-
-
-// #[tauri::command]
-// fn get_file_content(file_path: String) -> String {
-//     let file: String = file_path;
-//     let bytes = std::fs::read(file).expect("Could not read file");
-//     let content = STANDARD.encode(bytes);
-//     return content;
-// }
 
 #[tauri::command]
 fn get_file_content(file_path: String) -> Result<String, String> {
