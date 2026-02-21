@@ -1,12 +1,12 @@
-// will need to come back later to add result enums for err handling to avoid panics and crashes but thats later lol
-
 use serde::Serialize;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 
+// when using Result enum you should add .map_err(|e| e.to_string()) to the end of the function call
+// to convert the error to a string for easier handling in the frontend to see the error message and the app wont die and panic
 #[tauri::command]
-fn save_code_text(code_text: &str, file_name: &str) -> String {
+fn save_code_text(code_text: &str, file_name: &str) -> Result<String, String> {
     let file_name: String = file_name.to_string();
     let output_text: String = code_text.to_string();
 
@@ -15,17 +15,17 @@ fn save_code_text(code_text: &str, file_name: &str) -> String {
         .write(true)
         .truncate(true)
         .open(&file_name)
-        .expect("Could not open file");
+        .map_err(|e| e.to_string())?;
 
-    file.write(output_text.as_bytes())
-        .expect("Could not save.");
+    file.write_all(output_text.as_bytes())
+        .map_err(|e| e.to_string())?;
 
     let output: String = format!(
         "Last saved {}",
         chrono::Local::now().format("%H:%M:%S")
     );
-    // Code last saved at 10:08:46
-    return output;
+
+    Ok(output)
 }
 
 #[tauri::command]
@@ -76,21 +76,21 @@ fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
 
 
 #[tauri::command]
-fn start_terminal(path: &str) {
+fn start_terminal(path: &str) -> Result<String, String> {
     let os: String = get_os();
     if os == "windows" {
         std::process::Command::new("cmd")
             .arg("/C")
             .arg(format!("start cmd /K cd {}", path))
             .spawn()
-            .expect("Failed to open terminal");
+            .map_err(|e| e.to_string())?;
     }
     if os == "linux" {
         std::process::Command::new("gnome-terminal")
             .arg("--working-directory")
             .arg(path)
             .spawn()
-            .expect("Failed to open terminal");
+            .map_err(|e| e.to_string())?;
     }
     if os == "macos" {
         std::process::Command::new("open")
@@ -98,8 +98,9 @@ fn start_terminal(path: &str) {
             .arg("Terminal")
             .arg(path)
             .spawn()
-            .expect("Failed to open terminal");
+            .map_err(|e| e.to_string())?;
     }
+    Ok("Terminal opened successfully".to_string())
 }
 
 
