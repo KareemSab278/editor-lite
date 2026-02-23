@@ -1,6 +1,6 @@
 # editor-lite
 
-A minimal, fast code editor focused on speed and simplicity. editor-lite provides a small, responsive editing experience with the core features you need without the overhead of a full-featured IDE.
+A minimal, fast code editor focused on speed and simplicity. editor-lite provides a small, responsive editing experience with the core features you need without the overhead of a full-featured IDE. (learning project)
 
 ## What it does
 - Lightweight code editing with basic features (open/save, search).
