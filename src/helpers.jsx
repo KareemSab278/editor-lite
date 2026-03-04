@@ -1,3 +1,4 @@
+import { PrimaryButton } from "./components/buttons";
 export {
   handleKeyPress,
   Path,
@@ -22,6 +23,7 @@ const helpText = (
     <p> Control + Shift + H: Open This Help Modal</p>
     <p> Control + Q: Quit Application</p>
     <p> Control + W: Close Current File</p>
+    <p> Control + Shift + Z: Toggle Fullscreen</p>
     <p> Escape: Close Modals / Clear Status Messages</p>
   </div>
 );

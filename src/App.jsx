@@ -4,6 +4,7 @@ import { CodeEditorField } from "./components/codeEditorField";
 import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton, TabButton } from "./components/buttons";
 import { handleKeyPress, Path, helpText, returnFileTypeImage } from "./helpers";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 export { App };
 
@@ -16,6 +17,7 @@ const App = () => {
   const pathStack = useRef(new Path());
   const file = useRef(null);
   const [files, setFiles] = useState([]);
+  const [fullScreenState, setFullScreenState] = useState(false);
 
   const returnOperatingSystem = async () => {
     const os = await invoke("get_os");
@@ -80,6 +82,12 @@ const App = () => {
     await saveCodeText();
   };
 
+  const toggleFullScreen = () => {
+    const newFullScreenState = !fullScreenState;
+    setFullScreenState(newFullScreenState);
+    getCurrentWindow().setFullscreen(newFullScreenState);
+  };
+
   const keysHmapRef = useRef({});
   keysHmapRef.current = {
     "Control+e": () => setOpenModal("fileExplorer"),
@@ -89,6 +97,7 @@ const App = () => {
     "Control+H": () => setOpenModal("help"),
     "Control+w": () => closeCurrentFile(),
     "Control+s": async () => await save(),
+    "Control+Z": () => { toggleFullScreen(); },
     Backspace: () => backTrackFilePath(),
     Escape: () => {
       setOpenModal(null);
@@ -105,6 +114,7 @@ const App = () => {
 
   useEffect(() => {
     returnOperatingSystem();
+    getCurrentWindow().isFullscreen().then(setFullScreenState);
   }, []);
 
   useEffect(() => {
@@ -173,7 +183,15 @@ const App = () => {
         opened={openModal === "help"}
         closed={() => setOpenModal("")}
         title="Keyboard Shortcuts"
-        children={helpText}
+        children={
+          <>
+            {helpText}
+            <PrimaryButton
+              title={fullScreenState ? "Exit Full Screen" : "Full Screen"}
+              onClick={() => toggleFullScreen()}
+            />
+          </>
+        }
       />
 
       <PrimaryModal
