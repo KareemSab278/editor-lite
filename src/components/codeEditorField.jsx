@@ -16,7 +16,7 @@ const CodeEditorField = ({
       </div>
       <Editor
         height={height}
-        defaultLanguage="javascript"
+        defaultLanguage="plaintext"
         language={extToMonacoLang(fileName)}
         value={codeText}
         onChange={(value) => setCodeText(value || "")}
@@ -48,7 +48,8 @@ function extToMonacoLang(fileName = "") {
     md: "markdown",
     yml: "yaml",
     yaml: "yaml",
-  }[ext] || "javascript";
+    sln: "plaintext",
+  }[ext] || "plaintext";
 }
 
 const styles = {
