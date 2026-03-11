@@ -242,7 +242,9 @@ const App = () => {
                   }}
                 >
                   {fileObj.is_dir ? (
-                    "📁 "
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e8b84b" style={{ width: 16, height: 16, verticalAlign: "middle", marginRight: 4 }}>
+                      <path d="M10 4H2v16h20V6H12l-2-2z" />
+                    </svg>
                   ) : (
                     <img
                       src={returnFileTypeImage(fileObj.name)}
