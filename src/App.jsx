@@ -115,6 +115,11 @@ const App = () => {
   useEffect(() => {
     returnOperatingSystem();
     getCurrentWindow().isFullscreen().then(setFullScreenState);
+    const timer = setTimeout(() => {
+      setFullScreenState(true);
+      getCurrentWindow().setFullscreen(true);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
