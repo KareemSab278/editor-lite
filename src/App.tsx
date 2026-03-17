@@ -114,15 +114,22 @@ const App = () => {
     return () => clearTimeout(clearStatusMessage);
   }, [statusMessage]);
 
-  useEffect(() => {
-    returnOperatingSystem();
-    getCurrentWindow().isFullscreen().then(setFullScreenState);
-    const timer = setTimeout(() => {
-      setFullScreenState(true);
-      getCurrentWindow().setFullscreen(true);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    useEffect(() => {
+      const timer1 = setTimeout(() => {
+        getCurrentWindow().setFullscreen(true);
+        setFullScreenState(true);
+      }, 1000);
+  
+      const timer2 = setTimeout(() => {
+        getCurrentWindow().setFullscreen(false);
+        setFullScreenState(false);
+      }, 1500);
+  
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    }, []);
 
   useEffect(() => {
     const handleKeyPressEvent = (event: KeyboardEvent) => {
