@@ -1,6 +1,13 @@
 export { PrimaryModal };
 
-const PrimaryModal = ({ opened, closed, title, children }) => {
+type PrimaryModalProps = {
+  opened: boolean;
+  closed: () => void;
+  title: string;
+  children: React.ReactNode;
+};
+
+const PrimaryModal = ({ opened, closed, title, children }: PrimaryModalProps) => {
   if (!opened) return null;
 
   return (
@@ -15,7 +22,7 @@ const PrimaryModal = ({ opened, closed, title, children }) => {
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   mainBody: {
     position: "fixed",
     top: 0,

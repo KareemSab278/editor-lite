@@ -1,7 +1,7 @@
 import { Button } from "@mantine/core";
 export { PrimaryButton, TabButton };
 
-const PrimaryButton = ({ title, onClick }) => {
+const PrimaryButton = ({ title, onClick }: { title: string; onClick: () => void }) => {
   return (
     <section style={{ display: "inline-block", margin: "8px" }}>
       <Button
@@ -25,7 +25,7 @@ const PrimaryButton = ({ title, onClick }) => {
   );
 };
 
-const TabButton = ({ title, onClick, active }) => {
+const TabButton = ({ title, onClick, active }: { title: string; onClick: () => void; active: boolean }) => {
   return (
     <section style={{ display: "inline-block", margin: "8px" }}>
       <Button
@@ -41,7 +41,7 @@ const TabButton = ({ title, onClick, active }) => {
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   primary: {
     backgroundColor: "rgba(99, 99, 99, 0.42)",
     color: "#fff",
