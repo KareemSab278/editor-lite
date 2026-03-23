@@ -6,19 +6,21 @@ import { PrimaryButton, TabButton } from "./components/buttons";
 import { handleKeyPress, Path, helpText, returnFileTypeImage } from "./helpers";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
+// test directly from editor-lite app on linux mint
+
 export { App };
+type DirEntry = { name: string; path: string; is_dir: boolean };
 
 const App = () => {
-  const [codeText, setCodeText] = useState("");
-  const [selectedPath, setSelectedPath] = useState("");
-  const [dirFiles, setDirFiles] = useState([]);
-  const [statusMessage, setStatusMessage] = useState("");
-  const [openModal, setOpenModal] = useState("");
+  const [codeText, setCodeText] = useState<string | unknown>("");
+  const [selectedPath, setSelectedPath] = useState<string | null>('');
+  const [dirFiles, setDirFiles] = useState<DirEntry[] | unknown>([]);
+  const [statusMessage, setStatusMessage] = useState<string | null>('');
+  const [openModal, setOpenModal] = useState<string | null>(null);
   const pathStack = useRef(new Path());
-  const file = useRef(null);
-  const [files, setFiles] = useState([]);
-  const [fullScreenState, setFullScreenState] = useState(false);
-
+  const file = useRef<{ name: string } | null>(null);
+  const [files, setFiles] = useState<{ name: string, path: string }[]>([]);
+  const [fullScreenState, setFullScreenState] = useState<boolean>(false);
   const returnOperatingSystem = async () => {
     const os = await invoke("get_os");
     setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
@@ -26,7 +28,7 @@ const App = () => {
   };
 
   const closeCurrentFile = () => {
-    const currentPath = file.current?.name;
+    const currentPath: string | undefined = file.current?.name;
     if (!currentPath) return;
 
     setFiles((prev) => {
@@ -123,7 +125,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const handleKeyPressEvent = (event) => {
+    const handleKeyPressEvent = (event: KeyboardEvent) => {
       const keyString = `${event.ctrlKey ? "Control+" : ""}${event.key}`;
       const isShortcut = handleKeyPress(keyString, keysHmapRef.current);
       if (isShortcut) {
@@ -163,7 +165,7 @@ const App = () => {
     <div style={styles.body}>
       {files.length > 0 && (
         <div style={{ display: "flex", background: "#1e1e1e" }}>
-          {files.map((f) => (
+          {files.map((f: { name: string; path: string }) => (
             <TabButton
               key={f.path}
               title={f.name}
@@ -216,7 +218,7 @@ const App = () => {
               }}
             />
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {dirFiles.map((fileObj, index) => (
+              {(dirFiles as DirEntry[]).map((fileObj: DirEntry, index: number) => (
                 <li
                   key={index}
                   onClick={() => {
@@ -268,7 +270,7 @@ const App = () => {
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   body: {
     background: "#000000",
     minHeight: "100vh",

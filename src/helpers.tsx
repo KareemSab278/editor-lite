@@ -6,7 +6,7 @@ export {
   returnFileTypeImage,
 };
 
-const handleKeyPress = (eventKeystring, keysHmap) => {
+const handleKeyPress = (eventKeystring: string, keysHmap: { [key: string]: () => void }) => {
   const action = keysHmap[eventKeystring];
   if (action) {
     action();
@@ -29,18 +29,18 @@ const helpText = (
 );
 
 class Path {
-  #items;
+  #items: string[];
   constructor() {
     this.#items = [];
   }
-  push = (element) => this.#items.push(element);
+  push = (element: string) => this.#items.push(element);
   pop = () => this.#items.pop() || null;
   peek = () => this.#items[this.#items.length - 1] || null;
   isEmpty = () => this.#items.length === 0;
 }
 
-const returnFileTypeImage = (fileName) => {
-  const ext = fileName.split(".").pop().toLowerCase();
+const returnFileTypeImage = (fileName: string | undefined) => {
+  const ext = (fileName && fileName?.split(".").pop()?.toLowerCase()) ?? 'txt';
   return (
     {
       js: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACHElEQVR4nO2WT0hUURTGz3HUGUSEUNL8FxYmQgWF4UJRRDAQlRYuoqyViButdiUi7WoT0sZoIVorCcHMSKQ0cSEKKZX2oGhhhbQRDZRAxL6483jebjNKEr65A+eDj4Fz7rw5v3nnnXeIRCKRyErBIdhkEgBHACAA+1GsC4YAOLEvGgLg2GMSAEcAIAD7UawLhgA4//uDvOMn3WZuYZhwsZaRlcFIDDCyDzOa6hmLz+IAYLyPEArqHP3hlBCH89YCbC8SCnJ1PJjMKD7mfnqx0tOMXx8sBXg7pOMJCYz3T934l3HC8TzGtSuM9TcW34HJRzqu2mjznT7/cz4OHuKvE2b8QjVj6dW/Xs8CAOXz5eaDGwoymhsZn0bjBGB5knCmOHICBQIuyMac5QDKqsiOFkZqSiTIqROM1RnLATyvTBPu3CBkppsQbZc5tgBq3u8F8Pec/zFL4fnvnc/L8hFATZGGKsbzBzr2ecwEGOnRucd3CSUnI+d99039neQknwAG7lH49e9Nk+tXGT1dhLKzZkuo3UedV/uPF6sqZXybcONrs4TKczqn3ta+AHx8oQF2c+FRvRrc7zDvDDMjJ9NcJZRvtfjYQq/7CWmp0YtXrfCy1+z9zta9gStKoo/SAwNQ/j5FaG9i5B9x57lakxtrGHOD0c/PDBAu1TGKCtx//1CaW/jD24Sthd2m2gEC+GESAEcA4CuASCQSkR/6DRH0JVWM43R/AAAAAElFTkSuQmCC",

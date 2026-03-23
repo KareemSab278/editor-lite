@@ -2,23 +2,31 @@ import Editor from "@monaco-editor/react";
 
 export { CodeEditorField };
 
+type CodeEditorFieldProps = {
+  fileName?: string;
+  codeText: string | unknown;
+  setCodeText: (text: string) => void;
+  statusMessage: string | null;
+  height?: string;
+};
+
 const CodeEditorField = ({
   fileName,
   codeText,
   setCodeText,
   statusMessage,
   height = "100vh",
-}) => {
+}: CodeEditorFieldProps) => {
   return (
     <section style={styles.body}>
       <div style={styles.header}>
-        {fileName || "Ctrl + Shift + H For Help"} {fileName && " | "} {statusMessage}
+        {fileName || "Ctrl + Shift + H For Help"} {fileName && " | "} {statusMessage || ""}
       </div>
       <Editor
         height={height}
         defaultLanguage="javascript"
         language={extToMonacoLang(fileName)}
-        value={codeText}
+        value={codeText as string}
         onChange={(value) => setCodeText(value || "")}
         theme="vs-dark"
       />
@@ -27,7 +35,7 @@ const CodeEditorField = ({
 };
 
 function extToMonacoLang(fileName = "") {
-  const ext = fileName.split(".").pop().toLowerCase();
+  const ext: string = fileName.split(".").pop()?.toLowerCase() || "";
   return {
     js: "javascript",
     jsx: "javascript",
@@ -51,7 +59,7 @@ function extToMonacoLang(fileName = "") {
   }[ext] || "javascript";
 }
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   body: {
     background: "#000000",
     borderRadius: 4,
