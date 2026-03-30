@@ -23,18 +23,12 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "deb"
-    ],
-    "icon": [
-      "icons/editor_lite.png"
-    ]
+    "targets": ["deb", "msi"],
+    "icon": ["icons/icon.ico"]
   },
   "plugins": {
     "fs": {
-      "scope": [
-        "$HOME/**"
-      ]
+      "scope": ["$HOME/**"]
     }
   }
 }
