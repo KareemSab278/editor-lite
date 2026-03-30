@@ -1,4 +1,3 @@
-import { PrimaryButton } from "./components/buttons";
 export {
   handleKeyPress,
   Path,
@@ -17,6 +16,7 @@ const handleKeyPress = (eventKeystring: string, keysHmap: { [key: string]: () =>
 
 const helpText = (
   <div style={{ padding: "1rem", color: "#a8a8a8" }}>
+    <b>Keyboard Shortcuts:</b>
     <p> Control + E: Open File Explorer</p>
     <p> Control + S: Save Current File</p>
     <p> Control + J: Open Terminal in Current Directory</p>

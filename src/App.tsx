@@ -5,6 +5,7 @@ import { PrimaryModal } from "./components/fileSelectorModal";
 import { PrimaryButton, TabButton } from "./components/buttons";
 import { handleKeyPress, Path, helpText, returnFileTypeImage } from "./helpers";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { OptionsIcon } from "./components/optionsIcon";
 
 // test directly from editor-lite app on linux mint
 
@@ -163,9 +164,15 @@ const App = () => {
 
   return (
     <div style={styles.body}>
-      {files.length > 0 && (
-        <div style={{ display: "flex", background: "#1e1e1e" }}>
-          {files.map((f: { name: string; path: string }) => (
+      <div style={{ display: "flex", background: "#1e1e1e", overflowX: "auto", borderBottom: "1px solid #333" }}>
+        <TabButton
+          title={<OptionsIcon />}
+          onClick={() => setOpenModal("help")}
+          active={false}
+        />
+
+        {files.length > 0 &&
+          files.map((f: { name: string; path: string }) => (
             <TabButton
               key={f.path}
               title={f.name}
@@ -176,8 +183,8 @@ const App = () => {
               }}
             />
           ))}
-        </div>
-      )}
+      </div>
+
 
       <CodeEditorField
         fileName={file.current?.name}
@@ -189,22 +196,27 @@ const App = () => {
       <PrimaryModal
         opened={openModal === "help"}
         closed={() => setOpenModal("")}
-        title="Keyboard Shortcuts"
+        title={null}
         children={
           <>
-            {helpText}
             <PrimaryButton
               title={fullScreenState ? "Exit Full Screen" : "Full Screen"}
               onClick={() => toggleFullScreen()}
             />
+            <PrimaryButton
+              title="Open File Explorer"
+              onClick={() => setOpenModal("fileExplorer")}
+            />
+            {helpText}
           </>
         }
       />
 
+
       <PrimaryModal
         opened={openModal === "fileExplorer"}
         closed={() => setOpenModal("")}
-        title={`Select a file from: ${selectedPath}`}
+        title={selectedPath || "File Explorer"}
         children={
           <div style={{ padding: "1rem" }}>
             <PrimaryButton
@@ -266,7 +278,7 @@ const App = () => {
           </div>
         }
       />
-    </div>
+    </div >
   );
 };
 

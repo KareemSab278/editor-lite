@@ -1,4 +1,5 @@
 import { Button } from "@mantine/core";
+import { JSX } from "react";
 export { PrimaryButton, TabButton };
 
 const PrimaryButton = ({ title, onClick }: { title: string; onClick: () => void }) => {
@@ -25,7 +26,7 @@ const PrimaryButton = ({ title, onClick }: { title: string; onClick: () => void 
   );
 };
 
-const TabButton = ({ title, onClick, active }: { title: string; onClick: () => void; active: boolean }) => {
+const TabButton = ({ title, onClick, active }: { title: string | JSX.Element; onClick: () => void; active: boolean }) => {
   return (
     <section style={{ display: "inline-block", margin: "8px" }}>
       <Button

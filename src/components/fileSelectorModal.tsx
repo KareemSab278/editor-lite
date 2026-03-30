@@ -3,7 +3,7 @@ export { PrimaryModal };
 type PrimaryModalProps = {
   opened: boolean;
   closed: () => void;
-  title: string;
+  title: string | null;
   children: React.ReactNode;
 };
 
@@ -13,9 +13,9 @@ const PrimaryModal = ({ opened, closed, title, children }: PrimaryModalProps) =>
   return (
     <div style={styles.mainBody} onClick={closed}>
       <div style={styles.innerBody} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ marginTop: 0, color: "#fff", marginBottom: "1.5rem" }}>
+        <h4 style={{color: "#fff", marginBottom: "1.5rem", overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', scrollbarColor: 'transparent transparent'}}>
           {title}
-        </h2>
+        </h4>
         {children}
       </div>
     </div>
