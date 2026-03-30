@@ -115,22 +115,15 @@ const App = () => {
     return () => clearTimeout(clearStatusMessage);
   }, [statusMessage]);
 
-    useEffect(() => {
-      const timer1 = setTimeout(() => {
-        getCurrentWindow().setFullscreen(true);
-        setFullScreenState(true);
-      }, 1000);
-  
-      const timer2 = setTimeout(() => {
-        getCurrentWindow().setFullscreen(false);
-        setFullScreenState(false);
-      }, 1500);
-  
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
-    }, []);
+  useEffect(() => {
+    returnOperatingSystem();
+    getCurrentWindow().isFullscreen().then(setFullScreenState);
+    const timer = setTimeout(() => {
+      setFullScreenState(true);
+      getCurrentWindow().setFullscreen(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleKeyPressEvent = (event: KeyboardEvent) => {
@@ -190,8 +183,8 @@ const App = () => {
               }}
             />
           ))}
-      </div>
-
+        </div>
+      
 
       <CodeEditorField
         fileName={file.current?.name}
@@ -209,12 +202,12 @@ const App = () => {
             <PrimaryButton
               title={fullScreenState ? "Exit Full Screen" : "Full Screen"}
               onClick={() => toggleFullScreen()}
-            />
+              />
             <PrimaryButton
               title="Open File Explorer"
               onClick={() => setOpenModal("fileExplorer")}
-            />
-            {helpText}
+              />
+              {helpText}
           </>
         }
       />
