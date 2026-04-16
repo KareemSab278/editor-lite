@@ -20,10 +20,7 @@ fn save_code_text(code_text: &str, file_name: &str) -> Result<String, String> {
     file.write_all(output_text.as_bytes())
         .map_err(|e| e.to_string())?;
 
-    let output: String = format!(
-        "Last saved {}",
-        chrono::Local::now().format("%H:%M:%S")
-    );
+    let output: String = format!("Last saved {}", chrono::Local::now().format("%H:%M:%S"));
 
     Ok(output)
 }
@@ -33,10 +30,14 @@ fn get_file_content(file_path: String) -> Result<String, String> {
     std::fs::read_to_string(&file_path).map_err(|e| e.to_string())
 }
 
-
 #[tauri::command]
 fn get_os() -> String {
     std::env::consts::OS.to_string()
+}
+
+#[tauri::command]
+async fn is_raspberry_pi() -> bool {
+    cfg!(all(target_arch = "arm", target_os = "linux"))
 }
 
 #[derive(Serialize)]
@@ -46,12 +47,10 @@ struct DirEntry {
     is_dir: bool,
 }
 
-
 #[tauri::command]
 fn kill_app() {
     std::process::exit(0);
 }
-
 
 #[tauri::command]
 fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
@@ -73,7 +72,6 @@ fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
 
     Ok(result)
 }
-
 
 #[tauri::command]
 fn start_terminal(path: &str) -> Result<String, String> {
@@ -103,7 +101,6 @@ fn start_terminal(path: &str) -> Result<String, String> {
     Ok("Terminal opened successfully".to_string())
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -114,6 +111,7 @@ pub fn run() {
             list_dir,
             kill_app,
             get_os,
+            is_raspberry_pi,
             start_terminal
         ])
         .run(tauri::generate_context!())

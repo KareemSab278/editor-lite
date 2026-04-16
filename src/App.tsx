@@ -21,9 +21,16 @@ const App = () => {
   const pathStack = useRef(new Path());
   const file = useRef<{ name: string } | null>(null);
   const [files, setFiles] = useState<{ name: string, path: string }[]>([]);
+
   const [fullScreenState, setFullScreenState] = useState<boolean>(false);
+
   const returnOperatingSystem = async () => {
     const os = await invoke("get_os");
+    return os as string;
+  };
+
+  const getHomeDir = async () => {
+    const os = await returnOperatingSystem();
     setSelectedPath(os === "windows" ? "C:\\Users\\" : "/home");
     pathStack.current.push(os === "windows" ? "C:\\Users\\" : "/home");
   };
@@ -115,12 +122,20 @@ const App = () => {
     return () => clearTimeout(clearStatusMessage);
   }, [statusMessage]);
 
-  useEffect(() => {
-    returnOperatingSystem();
-    getCurrentWindow().isFullscreen().then(setFullScreenState);
-    const timer = setTimeout(() => {
+  const goFullScreenOnStartIfPi = async () => {
+    const os = await returnOperatingSystem();
+    const isPi = await invoke("is_raspberry_pi");
+    if (os === "linux" && isPi) { // only auto full screen if raspberry pi because screen issues sometimes
       setFullScreenState(true);
       getCurrentWindow().setFullscreen(true);
+    }
+  };
+  
+  useEffect(() => {
+    getHomeDir();
+    const timer = setTimeout(() => {
+      goFullScreenOnStartIfPi();
+      
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
